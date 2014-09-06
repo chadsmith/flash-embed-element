@@ -1,0 +1,34 @@
+<template>
+	<embed pluginspage="http://www.adobe.com/go/getflashplayer" type="application/x-shockwave-flash">
+</template>
+<script>
+  (function(window, document, undefined) {
+    var thatDoc = document;
+    var thisDoc = document.currentScript.ownerDocument;
+    var template = thisDoc.querySelector('template').content;
+    var FlashEmbedProto = Object.create(HTMLElement.prototype);
+    FlashEmbedProto.createdCallback = function() {
+      var el = this;
+      var shadowRoot = this.createShadowRoot();
+      var clone = thatDoc.importNode(template, true);
+      shadowRoot.appendChild(clone);
+      this.embed = shadowRoot.querySelector('embed');
+      [ 'src', 'width', 'height' ].forEach(function(attr) {
+        if(el.hasAttribute(attr)) {
+          var val = el.getAttribute(attr);
+          el.setAttr(attr, val);
+        }
+      });
+    };
+    FlashEmbedProto.attributeChangedCallback = function(attr, oldVal, newVal) {
+      this.setAttr(attr, newVal);
+    };
+    FlashEmbedProto.setAttr = function(attr, val) {
+      this[attr] = val;
+      this.embed.setAttribute(attr, val);
+    };
+    window.FlashEmbed = thatDoc.registerElement('flash-embed', {
+      prototype: FlashEmbedProto
+    });
+  })(window, document);
+</script>
